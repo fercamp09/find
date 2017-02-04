@@ -69,7 +69,7 @@ func rfLearn(group string) float64 {
 	return classificationSuccess
 }
 
-func rfClassify(group string, fingerprint Fingerprint) map[string]float64 {
+func rfClassify(group string, fingerprint Fingerprint) (string, map[string]float64) {
 	var m map[string]float64
 	tempFile := RandomString(10)
 	d1, _ := json.Marshal(fingerprint)
@@ -92,5 +92,14 @@ func rfClassify(group string, fingerprint Fingerprint) map[string]float64 {
 	}
 
 	os.Remove(tempFile + ".rftemp")
-	return m
+
+	bestLocation := ""
+	maxVal := float64(-100)
+	for key := range RF {
+		if RF[key] > maxVal {
+			maxVal = RF[key]
+			bestLocation = key
+		}
+	}
+	return bestLocation, m
 }
