@@ -186,6 +186,7 @@ func getHistoricalUserPositions(group string, user string, n int) []UserPosition
 		UTCfromUnixNano := time.Unix(0, fingerprint.Timestamp)
 		userJSON.Time = UTCfromUnixNano.String()
 		location, bayes := calculatePosterior(fingerprint, *NewFullParameters())
+		userJSON.Location = location
 		Debug.Printf("Bayes Location: %s", location)
 		userJSON.Bayes = bayes
 		// Process SVM if needed
@@ -194,9 +195,10 @@ func getHistoricalUserPositions(group string, user string, n int) []UserPosition
 		}
 		// Process RF if needed
 		if RuntimeArgs.RandomForests {
-			location1, userJSON.Rf = rfClassify(group, fingerprint)
+			location1, Rf := rfClassify(group, fingerprint)
+			userJSON.Rf = Rf
+			userJSON.Location = location1
 		}
-		userJSON.Location = location1
 		userJSONs[i] = userJSON
 	}
 	return userJSONs
@@ -246,14 +248,16 @@ func getCurrentPositionOfAllUsers(group string) map[string]UserPositionJSON {
 		foo := userPositions[user]
 		Debug.Printf("Bayes Location: %s", location)
 		foo.Bayes = bayes
+		foo.Location = location
 		// Process SVM if needed
 		if RuntimeArgs.Svm {
 			_, foo.Svm = classify(userFingerprints[user])
 		}
 		if RuntimeArgs.RandomForests {
-			location1, foo.Rf = rfClassify(group, userFingerprints[user])
+			location1, Rf := rfClassify(group, userFingerprints[user])
+			foo.Rf = Rf
+			foo.Location = location1
 		}
-		foo.Location = location1
 		go setUserPositionCache(group+user, foo)
 		userPositions[user] = foo
 	}
@@ -304,6 +308,7 @@ func getCurrentPositionOfUser(group string, user string) UserPositionJSON {
 		return userJSON
 	}
 	location, bayes := calculatePosterior(userFingerprint, *NewFullParameters())
+	userJSON.Location = location
 	Debug.Printf("Bayes Location: %s", location)
 	userJSON.Bayes = bayes
 	// Process SVM if needed
@@ -311,9 +316,11 @@ func getCurrentPositionOfUser(group string, user string) UserPositionJSON {
 		_, userJSON.Svm = classify(userFingerprint)
 	}
 	if RuntimeArgs.RandomForests {
-		location1, userJSON.Rf = rfClassify(group, userFingerprint)
+		location1, Rf := rfClassify(group, userFingerprint)
+		userJSON.Rf = Rf
+		userJSON.Location = location1
 	}
-	userJSON.Location = location1
+	
 
 	go setUserPositionCache(group+user, userJSON)
 	return userJSON
