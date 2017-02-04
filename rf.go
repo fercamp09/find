@@ -95,9 +95,9 @@ func rfClassify(group string, fingerprint Fingerprint) (string, map[string]float
 
 	bestLocation := ""
 	maxVal := float64(-100)
-	for key := range RF {
-		if RF[key] > maxVal {
-			maxVal = RF[key]
+	for key := range m {
+		if m[key] > maxVal {
+			maxVal = m[key]
 			bestLocation = key
 		}
 	}
