@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/schollz/bolt"
+	"github.com/boltdb/bolt"
 )
 
 var startTime time.Time
