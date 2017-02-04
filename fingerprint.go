@@ -264,8 +264,9 @@ func trackFingerprint(jsonFingerprint Fingerprint) (string, bool, string, map[st
 	userJSON.Svm = svmData
 	userJSON.Time = time.Now().String()
 	if RuntimeArgs.RandomForests {
-		userJSON.Rf = rfClassify(strings.ToLower(jsonFingerprint.Group), jsonFingerprint)
+		location , rf := rfClassify(strings.ToLower(jsonFingerprint.Group), jsonFingerprint)
 	}
+	userJSON.Rf = rf
 	go setUserPositionCache(strings.ToLower(jsonFingerprint.Group)+strings.ToLower(jsonFingerprint.Username), userJSON)
 
 	return message, true, locationGuess1, bayes, svmData, userJSON.Rf
