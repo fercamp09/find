@@ -18,8 +18,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/boltdb/bolt"
 	"github.com/gin-gonic/gin"
+	"github.com/schollz/bolt"
 )
 
 var startTime time.Time
@@ -186,7 +186,7 @@ func getHistoricalUserPositions(group string, user string, n int) []UserPosition
 		UTCfromUnixNano := time.Unix(0, fingerprint.Timestamp)
 		userJSON.Time = UTCfromUnixNano.String()
 		location, bayes := calculatePosterior(fingerprint, *NewFullParameters())
-		userJSON.Location = location
+		Debug.Printf("Bayes Location: %s", location)
 		userJSON.Bayes = bayes
 		// Process SVM if needed
 		if RuntimeArgs.Svm {
@@ -194,8 +194,9 @@ func getHistoricalUserPositions(group string, user string, n int) []UserPosition
 		}
 		// Process RF if needed
 		if RuntimeArgs.RandomForests {
-			userJSON.Rf = rfClassify(group, fingerprint)
+			location1, userJSON.Rf = rfClassify(group, fingerprint)
 		}
+		userJSON.Location = location1
 		userJSONs[i] = userJSON
 	}
 	return userJSONs
@@ -243,15 +244,16 @@ func getCurrentPositionOfAllUsers(group string) map[string]UserPositionJSON {
 	for user := range userPositions {
 		location, bayes := calculatePosterior(userFingerprints[user], *NewFullParameters())
 		foo := userPositions[user]
-		foo.Location = location
+		Debug.Printf("Bayes Location: %s", location)
 		foo.Bayes = bayes
 		// Process SVM if needed
 		if RuntimeArgs.Svm {
 			_, foo.Svm = classify(userFingerprints[user])
 		}
 		if RuntimeArgs.RandomForests {
-			foo.Rf = rfClassify(group, userFingerprints[user])
+			location1, foo.Rf = rfClassify(group, userFingerprints[user])
 		}
+		foo.Location = location1
 		go setUserPositionCache(group+user, foo)
 		userPositions[user] = foo
 	}
@@ -302,15 +304,17 @@ func getCurrentPositionOfUser(group string, user string) UserPositionJSON {
 		return userJSON
 	}
 	location, bayes := calculatePosterior(userFingerprint, *NewFullParameters())
-	userJSON.Location = location
+	Debug.Printf("Bayes Location: %s", location)
 	userJSON.Bayes = bayes
 	// Process SVM if needed
 	if RuntimeArgs.Svm {
 		_, userJSON.Svm = classify(userFingerprint)
 	}
 	if RuntimeArgs.RandomForests {
-		userJSON.Rf = rfClassify(group, userFingerprint)
+		location1, userJSON.Rf = rfClassify(group, userFingerprint)
 	}
+	userJSON.Location = location1
+
 	go setUserPositionCache(group+user, userJSON)
 	return userJSON
 }
