@@ -266,6 +266,7 @@ func trackFingerprint(jsonFingerprint Fingerprint) (string, bool, string, map[st
 	if RuntimeArgs.RandomForests {
 		location , rf := rfClassify(strings.ToLower(jsonFingerprint.Group), jsonFingerprint)
 		userJSON.Rf = rf
+		userJSON.Location = location
 	}
 	go setUserPositionCache(strings.ToLower(jsonFingerprint.Group)+strings.ToLower(jsonFingerprint.Username), userJSON)
 
