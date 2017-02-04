@@ -76,7 +76,7 @@ func rfClassify(group string, fingerprint Fingerprint) (string, map[string]float
 	err := ioutil.WriteFile(tempFile+".rftemp", d1, 0644)
 	if err != nil {
 		Error.Println("Could not write file: " + err.Error())
-		return m
+		return "", m
 	}
 
 	// connect to this socket
