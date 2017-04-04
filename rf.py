@@ -138,11 +138,10 @@ class RF(object):
         # 			print(max_feature,n_estimator,min_samples_split,clf.score(self.testX, self.testY))
 
         clf = RandomForestClassifier(
-            n_estimators=200,
-            max_depth=30,
+            n_estimators=10,
+            max_depth=None,
             min_samples_split=2,
-            random_state=0,
-            max_features="log2")
+            random_state=0)
         clf.fit(self.trainX, self.trainY)
         score = clf.score(self.testX, self.testY)
         with open('data/' + dataFile + '.rf.pkl', 'wb') as fid:
